@@ -1,0 +1,93 @@
+PARSER_BEGIN(D)
+import java.io.*;
+
+public class D {
+    public static void main(String[] args) throws ParseException, IOException{
+      D lex = new D(new FileInputStream(args[0]));
+      lex.D();
+    }
+}
+PARSER_END(D)
+
+/*
+    Caracteres a serem ignorados pelo analisador
+ */
+SKIP : {
+    " "
+|   "\t"
+|   "\n"
+|   "\r"
+}
+
+/*
+    Tokens gerais da linguagem, incluem: palavras reservadas, operadores e delimitadores
+ */
+TOKEN : {
+    <MAIN: "main">
+|   <APARENTESES: "(">
+|   <FPARENTESES: ")">
+|   <ACHAVES: "{">
+|   <FCHAVES: "}">
+|   <INT: "int">
+|   <FLOAT: "float">
+|   <CHAR: "char">
+|   <VOID: "void">
+|   <PVIRGULA: ";">
+|   <SOMA: "+">
+|   <SUBTRACAO: "-">
+|   <DIVISAO: "/">
+|   <MULTIPLICACAO: "*">
+|   <ATRIBUICAO: "=">
+|   <PRINT: "print">
+|   <FOR: "for">
+|   <WHILE: "while">
+|   <IF: "if">
+|   <ELSE: "else">
+|   <RETURN: "return">
+}
+
+
+/*
+    Tokens para reconhecimento de identificadores e números
+ */
+TOKEN : {
+    <ID: ["a"-"z", "A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*>
+|   <NUM_N: ((["0"-"9"])+)>
+|   <NUM_R: (["0"-"9"])+(["."](["0"-"9"])+)?>
+
+}
+
+/*
+    Realiza a "execução" do código. Quando um token é encontrado imprime o mesmo na tela.
+ */
+void D():
+{Token t;}
+{
+(
+    <MAIN> {System.out.println("PALAVRA RESERVADA: 'main'");}
+|   <ACHAVES> {System.out.println("ABRE CHAVES:       '{'");}
+|   <FCHAVES> {System.out.println("FECHA CHAVES:      '}'");}
+|   <APARENTESES> {System.out.println("ABRE PARENTESES:   '('");}
+|   <FPARENTESES> {System.out.println("FECHA PARENTESES:  ')'");}
+|   <PVIRGULA> {System.out.println("PONTO E VIRGULA:  ';'");}
+|   <SOMA> {System.out.println("SOMA:              '+'");}
+|   <SUBTRACAO> {System.out.println("SUBTRACAO:         '-'");}
+|   <DIVISAO> {System.out.println("DIVISAO:           '/'");}
+|   <MULTIPLICACAO> {System.out.println("MULTIPLICACAO:     '*'");}
+|   <ATRIBUICAO> {System.out.println("ATRIBUICAO:        '='");}
+|   <PRINT> {System.out.println("PALAVRA RESERVADA: 'print'");}
+|   <INT> {System.out.println("PALAVRA RESERVADA: 'int'");}
+|   <FLOAT> {System.out.println("PALAVRA RESERVADA: 'float'");}
+|   <CHAR> {System.out.println("PALAVRA RESERVADA: 'char'");}
+|   <VOID> {System.out.println("PALAVRA RESERVADA: 'void'");}
+|   <FOR> {System.out.println("PALAVRA RESERVADA: 'for'");}
+|   <WHILE> {System.out.println("PALAVRA RESERVADA: 'while'");}
+|   <IF> {System.out.println("PALAVRA RESERVADA: 'if'");}
+|   <ELSE> {System.out.println("PALAVRA RESERVADA: 'else'");}
+|   <RETURN> {System.out.println("PALAVRA RESERVADA: 'return'");}
+|   t=<NUM_N> {System.out.println("NUMERO NATURAL:    " + t.image);}
+|   t=<NUM_R> {System.out.println("NUMERO REAL:       " + t.image);}
+|   t=<ID> {System.out.println("IDENTIFICADOR:      " + t.image);}
+)*
+<EOF>
+}
