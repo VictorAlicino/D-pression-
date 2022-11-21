@@ -1,0 +1,170 @@
+PARSER_BEGIN(Dp)
+import java.io.*;
+
+public class Dp {
+    public static void main(String[] args) throws ParseException, IOException{
+        System.out.print("Type the name of file to parse: ");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String filename = br.readLine();
+        try{
+            Dp lex_analyzer = new Dp(new FileInputStream(filename));
+            System.out.println("Starting Lexical Analysis on " + filename + "...");
+            try{
+                lex_analyzer.Dp();
+                System.out.println("Lexical Analysis Completed");
+            }catch(TokenMgrError e){
+                System.out.println("\n" + e.getMessage() + "\nLexical Analysis Failed");
+            }
+        }catch(FileNotFoundException e){
+            System.out.println("ERROR\n" + e.getMessage() + "\nLexical Analysis Failed");
+        }
+    }
+}
+PARSER_END(Dp)
+
+// IGNORE THIS CHARACTERS
+SKIP : {
+    " "
+|   "\t"
+|   "\n"
+|   "\r"
+| <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")> /* IGNORE SINGLE LINE COMMENTS */
+| <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/"> /* IGNORE MULTIPLE LINE COMMENTS */
+}
+
+// TOKENS FOR KEYWORDS
+TOKEN: {
+/* CONTROL FLOW */
+    <IF: "if"> /* IF */
+|   <ELSE: "else"> /* ELSE */
+|   <WHILE: "while"> /* WHILE */
+|   <FOR: "for"> /* FOR */
+|   <RETURN: "return"> /* RETURN */
+|   <BREAK: "break"> /* BREAK */
+/* DATA TYPES */
+|   <INT: "int"> /* INT */
+|   <FLOAT: "float"> /* FLOAT */
+|   <VOID: "void"> /* VOID */
+|   <CHAR_TYPE: "char"> /* CHAR */
+|   <STRING: "string"> /* STRING */
+|   <BOOL: "bool"> /* BOOL */
+|   <TRUE: "true"> /* TRUE */
+|   <FALSE: "false"> /* FALSE */
+/* SPECIALS */
+|   <PRINT: "print"> /* PRINT */
+|   <MAIN: "main"> /* MAIN */
+}
+
+// TOKENS FOR SEPARATORS
+TOKEN: {
+    <LPAREN: "("> /* LEFT PARENTHESIS */
+|   <RPAREN: ")"> /* RIGHT PARENTHESIS */
+|   <LBRACE: "{"> /* LEFT BRACE */
+|   <RBRACE: "}"> /* RIGHT BRACE */
+|   <LBRACKET: "["> /* LEFT BRACKET */
+|   <RBRACKET: "]"> /* RIGHT BRACKET */
+|   <DOT: "."> /* DOT */
+|   <COMMA: ","> /* COMMA */
+|   <SEMICOLON: ";"> /* SEMICOLON */
+}
+
+// TOKENS FOR IDS AND NUMBERS
+TOKEN : {
+    <ID: ["a"-"z", "A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*> /* ID */
+|   <NUM_N: ((["0"-"9"])+)> /* NATURAL NUMBER */
+|   <NUM_R: (["0"-"9"])+(([","]|["."])(["0"-"9"])+)?> /* REAL NUMBER */
+|   <CHAR: "'" (["a"-"z","A"-"Z","0"-"9","_"," ","!","@","#","$","%","^","&","*","(",")","-","+","=","{","}","[","]","|",";",":","<",">","?","/","~","`","\\"]|[" "]) "'" > /* CHAR */
+}
+
+// TOKENS FOR OPERATORS
+TOKEN: {
+    <PLUS: "+"> /* PLUS */
+|   <MINUS: "-"> /* MINUS */
+|   <MULT: "*"> /* MULTIPLICATION */
+|   <DIV: "/"> /* DIVISION */
+|   <MOD: "%"> /* MODULO */
+|   <EXP: "^"> /* EXPONENTIATION */
+|   <ASSIGN: "="> /* ASSIGNMENT */
+|   <EQUAL: "=="> /* EQUALITY */
+|   <NEQUAL: "!="> /* INEQUALITY */
+|   <LESS: "<"> /* LESS THAN */
+|   <GREATER: ">"> /* GREATER THAN */
+|   <LEQUAL: "<="> /* LESS THAN OR EQUAL TO */
+|   <GEQUAL: ">="> /* GREATER THAN OR EQUAL TO */
+|   <AND: "&&"> /* AND */
+|   <OR: "||"> /* OR */
+|   <NOT: "!"> /* NOT */
+|   <COLON: ":"> /* COLON */
+|   <QUESTION: "?"> /* QUESTION MARK */
+|   <ARROW: "->"> /* ARROW */
+|   <INC: "++"> /* INCREMENT */
+|   <DEC: "--"> /* DECREMENT */
+|   <APOSTROPHE: "'"> /* APOSTROPHE */
+|   <ADD_ASSIGN: "+="> /* ADDITION ASSIGNMENT */
+|   <SUB_ASSIGN: "-="> /* SUBTRACTION ASSIGNMENT */
+|   <MUL_ASSIGN: "*="> /* MULTIPLICATION ASSIGNMENT */
+}
+
+// TOKEN LEXICAL ANALYZER
+void Dp():{
+    System.out.println("BEGIN OF FILE\n");
+    Token t;
+ }{
+    (
+    t = <ID> {System.out.print("ID ");}
+    |   t = <NUM_N> {System.out.print("NUM_N ");}
+    |   t = <NUM_R> {System.out.print("NUM_R ");}
+    |   t = <PLUS> {System.out.print("PLUS ");}
+    |   t = <MINUS> {System.out.print("MINUS ");}
+    |   t = <MULT> {System.out.print("MULT ");}
+    |   t = <DIV> {System.out.print("DIV ");}
+    |   t = <MOD> {System.out.print("MOD ");}
+    |   t = <EXP> {System.out.print("EXP ");}
+    |   t = <ASSIGN> {System.out.print("ASSIGN ");}
+    |   t = <EQUAL> {System.out.print("EQUAL ");}
+    |   t = <NEQUAL> {System.out.print("NEQUAL ");}
+    |   t = <LESS> {System.out.print("LESS ");}
+    |   t = <GREATER> {System.out.print("GREATER ");}
+    |   t = <LEQUAL> {System.out.print("LEQUAL ");}
+    |   t = <GEQUAL> {System.out.print("GEQUAL ");}
+    |   t = <AND> {System.out.print("AND ");}
+    |   t = <OR> {System.out.print("OR ");}
+    |   t = <NOT> {System.out.print("NOT ");}
+    |   t = <LPAREN> {System.out.print("(");}
+    |   t = <RPAREN> {System.out.print(")");}
+    |   t = <LBRACE> {System.out.println("{");}
+    |   t = <RBRACE> {System.out.println("}\n");}
+    |   t = <LBRACKET> {System.out.print("[");}
+    |   t = <RBRACKET> {System.out.println("]");}
+    |   t = <SEMICOLON> {System.out.println(" ");}
+    |   t = <COMMA> {System.out.print(", ");}
+    |   t = <COLON> {System.out.print(": ");}
+    |   t = <APOSTROPHE> {System.out.print("'");}
+    |   t = <QUESTION> {System.out.print("?");}
+    |   t = <ARROW> {System.out.print("ARROW ");}
+    |   t = <INC> {System.out.print("INC ");}
+    |   t = <DEC> {System.out.print("DEC ");}
+    |   t = <ADD_ASSIGN> {System.out.print("ADD_ASSIGN ");}
+    |   t = <SUB_ASSIGN> {System.out.print("SUB_ASSIGN ");}
+    |   t = <MUL_ASSIGN> {System.out.print("MUL_ASSIGN ");}
+    |   t = <IF> {System.out.print("IF ");}
+    |   t = <ELSE> {System.out.print("ELSE ");}
+    |   t = <WHILE> {System.out.print("WHILE ");}
+    |   t = <FOR> {System.out.print("FOR ");}
+    |   t = <PRINT> {System.out.print("PRINT ");}
+    |   t = <MAIN> {System.out.print("MAIN ");}
+    |   t = <INT> {System.out.print("INT ");}
+    |   t = <FLOAT> {System.out.print("FLOAT ");}
+    |   t = <CHAR> {System.out.print("CHAR ");}
+    |   t = <CHAR_TYPE> {System.out.print("CHAR_TYPE ");}
+    |   t = <STRING> {System.out.print("STRING ");}
+    |   t = <BOOL> {System.out.print("BOOL ");}
+    |   t = <TRUE> {System.out.print("TRUE ");}
+    |   t = <FALSE> {System.out.print("FALSE ");}
+    |   t = <VOID> {System.out.print("VOID ");}
+    |   t = <RETURN> {System.out.print("RETURN ");}
+    )*
+    <EOF> {System.out.println("\nEND OF FILE ");}
+}
+
+
