@@ -1,0 +1,213 @@
+PARSER_BEGIN(Dp)
+import java.io.*;
+
+public class Dp {
+    public static void main(String[] args) throws ParseException, IOException{
+        System.out.print("Type the name of file to parse: ");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String filename = br.readLine();
+        try{
+            Dp lex_analyzer = new Dp(new FileInputStream(filename));
+            System.out.println("Starting Lexical Analysis on " + filename + "...");
+            try{
+                lex_analyzer.Dp();
+                System.out.println("Lexical Analysis Completed");
+            }catch(TokenMgrError e){
+                System.out.println("\n" + e.getMessage() + "\nLexical Analysis Failed");
+            }
+        }catch(FileNotFoundException e){
+            System.out.println("ERROR\n" + e.getMessage() + "\nLexical Analysis Failed");
+        }
+    }
+}
+PARSER_END(Dp)
+
+// IGNORE THIS CHARACTERS
+SKIP : {
+    " "
+|   "\t"
+|   "\n"
+|   "\r"
+| <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")> /* IGNORE SINGLE LINE COMMENTS */
+| <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/"> /* IGNORE MULTIPLE LINE COMMENTS */
+}
+
+// TOKENS FOR KEYWORDS
+TOKEN: {
+/* CONTROL FLOW */
+    <IF: "if"> /* IF */
+|   <ELSE: "else"> /* ELSE */
+|   <WHILE: "while"> /* WHILE */
+|   <FOR: "for"> /* FOR */
+|   <RETURN: "return"> /* RETURN */
+|   <BREAK: "break"> /* BREAK */
+/* DATA TYPES */
+|   <INT: "int"> /* INT */
+|   <FLOAT: "float"> /* FLOAT */
+|   <VOID: "void"> /* VOID */
+|   <CHAR_TYPE: "char"> /* CHAR */
+|   <STRING: "string"> /* STRING */
+|   <BOOL: "bool"> /* BOOL */
+|   <TRUE: "true"> /* TRUE */
+|   <FALSE: "false"> /* FALSE */
+/* SPECIALS */
+|   <PRINT: "print"> /* PRINT */
+|   <MAIN: "main"> /* MAIN */
+|   <HASHTAG: "#"> /* HASHTAG */
+|   <DEFINE: "define"> /* DEFINE */
+|   <IMPORT: "import"> /* IMPORT */
+}
+
+// TOKENS FOR SEPARATORS
+TOKEN: {
+    <LPAREN: "("> /* LEFT PARENTHESIS */
+|   <RPAREN: ")"> /* RIGHT PARENTHESIS */
+|   <LBRACE: "{"> /* LEFT BRACE */
+|   <RBRACE: "}"> /* RIGHT BRACE */
+|   <LBRACKET: "["> /* LEFT BRACKET */
+|   <RBRACKET: "]"> /* RIGHT BRACKET */
+|   <DOT: "."> /* DOT */
+|   <COMMA: ","> /* COMMA */
+|   <SEMICOLON: ";"> /* SEMICOLON */
+}
+
+// TOKENS FOR IDS AND NUMBERS
+TOKEN : {
+    <ID: ["a"-"z", "A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*> /* ID */
+|   <NUM_N: ((["0"-"9"])+)> /* NATURAL NUMBER */
+|   <NUM_R: (["0"-"9"])+(([","]|["."])(["0"-"9"])+)?> /* REAL NUMBER */
+|   <CHAR: "'" (["a"-"z","A"-"Z","0"-"9","_"," ","!","@","#","$","%","^","&","*","(",")","-","+","=","{","}","[","]","|",";",":","<",">","?","/","~","`","\\"]|[" "]) "'" > /* CHAR */
+}
+
+// TOKENS FOR OPERATORS
+TOKEN: {
+    <PLUS: "+"> /* PLUS */
+|   <MINUS: "-"> /* MINUS */
+|   <MULT: "*"> /* MULTIPLICATION */
+|   <DIV: "/"> /* DIVISION */
+|   <MOD: "%"> /* MODULO */
+|   <EXP: "^"> /* EXPONENTIATION */
+|   <ASSIGN: "="> /* ASSIGNMENT */
+|   <EQUAL: "=="> /* EQUALITY */
+|   <NEQUAL: "!="> /* INEQUALITY */
+|   <LESS: "<"> /* LESS THAN */
+|   <GREATER: ">"> /* GREATER THAN */
+|   <LEQUAL: "<="> /* LESS THAN OR EQUAL TO */
+|   <GEQUAL: ">="> /* GREATER THAN OR EQUAL TO */
+|   <AND: "&&"> /* AND */
+|   <OR: "||"> /* OR */
+|   <NOT: "!"> /* NOT */
+|   <COLON: ":"> /* COLON */
+|   <QUESTION: "?"> /* QUESTION MARK */
+|   <ARROW: "->"> /* ARROW */
+|   <INC: "++"> /* INCREMENT */
+|   <DEC: "--"> /* DECREMENT */
+|   <APOSTROPHE: "'"> /* APOSTROPHE */
+|   <ADD_ASSIGN: "+="> /* ADDITION ASSIGNMENT */
+|   <SUB_ASSIGN: "-="> /* SUBTRACTION ASSIGNMENT */
+|   <MUL_ASSIGN: "*="> /* MULTIPLICATION ASSIGNMENT */
+}
+
+// GRAMMARS
+void Dp():{
+    System.out.println("BEGIN OF FILE\n");
+    Token t;
+ }{
+    OUT_SCOPE_LINE()
+    <EOF> {System.out.println("\nEND OF FILE ");}
+}
+
+void TYPE():
+{}
+{
+        <INT>
+    |   <FLOAT>
+    |   <CHAR_TYPE>
+    |   <STRING>
+    |   <BOOL>
+    |   <VOID>
+}
+
+void GENERIC_ATTR():
+{}{
+        <ID>
+    |   NUM()
+}
+
+void NUM():
+{}{
+        <NUM_N>
+    |   <NUM_R>
+}
+
+void EXP():
+{}{
+    (LINE() <SEMICOLON>)?
+}
+
+void LINE():
+{}{
+    VAR_DECLAR() | FUNCTION_CALL() | DIRECTIVE1() | DIRECTIVE2()
+}
+
+void OUT_SCOPE_LINE() :
+{}
+{
+        VAR_DECLAR() <SEMICOLON>
+    |   FUNCTION_CALL() <SEMICOLON>
+    |   DIRECTIVE1()
+    |   DIRECTIVE2()
+}
+
+void DIRECTIVE1():
+{}{
+    <HASHTAG> <DEFINE> <ID> GENERIC_ATTR()
+}
+
+void DIRECTIVE2():
+{}{
+    <HASHTAG> <IMPORT> <ID>
+}
+
+void VAR_DECLAR():
+{}
+{
+        TYPE() VAR_TYPES()
+    |   TYPE() VAR_DECLAR_BODY()
+}
+
+void VAR_TYPES():
+{}
+{
+        <ID>
+    |   <ID> <LBRACKET> <NUM_N> <RBRACKET>
+}
+
+void VAR_DECLAR_BODY():
+{}
+{
+        <ID>
+    |   <ID> <COMMA> VAR_DECLAR_BODY_EXT()
+}
+
+void VAR_DECLAR_BODY_EXT():
+{}
+{
+        (VAR_DECLAR_BODY())?
+}
+
+void FUNCTION_CALL():
+{}
+{
+    <ID> <LPAREN> ARGS() <RPAREN> <SEMICOLON>
+}
+
+void ARGS():
+{}{
+    (EXP() <COMMA> ARGS_EXT())?
+}
+
+void ARGS_EXT():
+{}{
+    (EXP() <COMMA> ARGS())?
+}
